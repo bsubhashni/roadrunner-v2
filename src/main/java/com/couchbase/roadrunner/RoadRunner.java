@@ -84,7 +84,7 @@ public final class RoadRunner {
 	public static final String DEFAULT_SAMPLING = "100";
 	public static final String DEFAULT_PHASE = "run";
 	public static final String DEFAULT_RAMP = "0";
-	public static final String DEFAULT_CLASS = "Device";
+	public static final String DEFAULT_CLASS = "Simple";
 	public static final String DEFAULT_MIN_THINKTIME = "1";
 	public static final String DEFAULT_MAX_THINKTIME = "1000";
 	public static final String DEFAULT_BATCHSIZE = "100";
@@ -208,7 +208,7 @@ public final class RoadRunner {
 		Options options = new Options();
 
 		options.addOption("P", OPT_PHASE, true,
-				"load/run phase \""
+				"load/run phase (default: \""
 						+ DEFAULT_PHASE + "\")");
 
 		options.addOption("n", OPT_NODES, true,
@@ -230,7 +230,7 @@ public final class RoadRunner {
 				"Number of documents to work with (default: \"" + DEFAULT_NUM_DOCS + "\")");
 
 		options.addOption("B", OPT_BATCHSIZE, true,
-				"Batch size (default \"" + DEFAULT_BATCHSIZE + "\")");
+				"Batch size (default: \"" + DEFAULT_BATCHSIZE + "\")");
 
 		options.addOption("g", OPT_READRATIO , true,
 				"Read Ratio  (default: \"" + DEFAULT_READ_RATIO + "\")");
@@ -239,19 +239,19 @@ public final class RoadRunner {
 				"Write Ratio (default: \"" + DEFAULT_READ_RATIO + "\")");
 
 		options.addOption("s", OPT_SAMPLING, true,
-				"% Sample Rate (default \"" + DEFAULT_SAMPLING + "%\")");
+				"% Sample Rate (default: \"" + DEFAULT_SAMPLING + "%\")");
 
 		options.addOption("R", OPT_RAMP, true,
 				"Ramp-Up time in seconds - ignored ops (default: \"" + DEFAULT_RAMP + "\")");
 
 		options.addOption("C", OPT_CLASS_NAME, true,
-				"Class name from the sample classes (default \"" + DEFAULT_CLASS + "\")");
+				"Class name from the sample classes (default: \"" + DEFAULT_CLASS + "\")");
 
 		options.addOption("z", OPT_MINTHINKTIME, true,
-				"Minimum think time (default \"" + DEFAULT_MIN_THINKTIME + "\")");
+				"Minimum think time (default: \"" + DEFAULT_MIN_THINKTIME + "\")");
 
 		options.addOption("Z", OPT_MAXTHINKTIME, true,
-				"Maximum think time (default \"" + DEFAULT_MAX_THINKTIME + "\")");
+				"Maximum think time (default: \"" + DEFAULT_MAX_THINKTIME + "\")");
 
 		options.addOption("h", OPT_HELP, false,
 				"Print this help message");
