@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.env.CouchbaseEnvironment;
+import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 import com.couchbase.roadrunner.customConverter.ByteJsonTranscoder;
 import com.couchbase.roadrunner.workloads.DocumentGenerator;
 import com.couchbase.roadrunner.workloads.Workload;
@@ -37,6 +39,11 @@ import com.google.common.base.Stopwatch;
  * dispatching the given workloads to run.
  */
 class ClientHandler {
+
+
+	static {
+		System.setProperty("com.couchbase.sentRequestQueueLimit", String.valueOf(Integer.MAX_VALUE));
+	}
 
 	private final GlobalConfig config;
 
@@ -69,7 +76,11 @@ class ClientHandler {
 		this.clientOffset = offset;
 		this.documentGenerator = documentGenerator;
 
-		Cluster cluster = CouchbaseCluster.create(config.getNodes());
+		CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
+				.kvEndpoints(4)
+				.callbacksOnIoPool(true)
+				.build();
+		Cluster cluster = CouchbaseCluster.create(env, config.getNodes());
 		this.client = cluster.openBucket(config.getBucket(), config.getPassword(), Collections.singletonList(new ByteJsonTranscoder()));
 
 		this.executor = new ThreadPoolExecutor(

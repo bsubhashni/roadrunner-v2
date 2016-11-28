@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.couchbase.client.core.BackpressureException;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.roadrunner.GlobalConfig;
 import com.couchbase.roadrunner.customConverter.ByteJsonDocument;
@@ -31,6 +32,7 @@ import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.functions.Func1;
 
 public class Workload implements Runnable {
 	private final Logger logger =
@@ -75,8 +77,6 @@ public class Workload implements Runnable {
 		startTimer();
 		Thread.currentThread().setName(getWorkloadName());
 		int numBatches = this.count / config.getBatchSize();
-		CountDownLatch latch = new CountDownLatch(config.getBatchSize());
-
 		int samplingInterval = 0;
 		if (config.getSamplingCount() > 0) {
 			samplingInterval = config.getSamplingCount() / config.getNumThreads();
@@ -84,8 +84,9 @@ public class Workload implements Runnable {
 
 		int index = this.start;
 		for (int i = 0; i < numBatches; i++) {
+			CountDownLatch latch = new CountDownLatch(config.getBatchSize());
 
-			if (config.getPhase() == "run") {
+			if (config.getPhase().compareTo("run") == 0) {
 				int readCount = (config.getReadratio() * config.getBatchSize()) / 100;
 				int writeCount = (config.getWriteratio() * config.getBatchSize()) / 100;
 
@@ -110,7 +111,7 @@ public class Workload implements Runnable {
 							);
 					index++;
 				}
-			} else {
+			} else if (config.getPhase().compareTo("load") == 0){
 				int insertCount = config.getBatchSize();
 				while (insertCount-- > 0) {
 					insertWorkload(config.getKeyPrefix() + start + index++)
@@ -156,7 +157,12 @@ public class Workload implements Runnable {
 
 	private Observable<ByteJsonDocument> _update(String key) {
 		final ByteJsonDocument document = documentGenerator.getDocument(key);
-		return getBucket().async().upsert(document);
+		return getBucket().async().upsert(document).retryWhen(errors -> errors.flatMap((Func1<Throwable, Observable<?>>) throwable -> {
+							if (throwable instanceof BackpressureException) {
+									return Observable.timer(1, TimeUnit.MICROSECONDS);
+								}
+							return Observable.error(throwable);
+						}));
 	}
 
 	private Observable<ByteJsonDocument> get(String key, boolean measure) {
@@ -176,7 +182,12 @@ public class Workload implements Runnable {
 	}
 
 	private Observable<ByteJsonDocument> _get(String key) {
-		return getBucket().async().get(key, ByteJsonDocument.class);
+		return getBucket().async().get(key, ByteJsonDocument.class).retryWhen(errors -> errors.flatMap((Func1<Throwable, Observable<?>>) throwable -> {
+			if (throwable instanceof BackpressureException) {
+				return Observable.timer(1, TimeUnit.MICROSECONDS);
+			}
+			return Observable.error(throwable);
+		}));
 	}
 
 	private Observable<ByteJsonDocument> insertWorkload(String key) {
