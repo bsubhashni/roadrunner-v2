@@ -92,7 +92,7 @@ public class Workload implements Runnable {
 
 				while (writeCount-- > 0) {
 					boolean measure = index != 0 && samplingInterval != 0 && index % samplingInterval == 0;
-					update(config.getKeyPrefix() + start + index, measure)
+					update(config.getKeyPrefix() + index, measure)
 							.subscribe(
 									doc -> {},
 									err -> {incrTotalOps();err.printStackTrace();latch.countDown();},
@@ -103,7 +103,7 @@ public class Workload implements Runnable {
 
 				while (readCount-- > 0) {
 					boolean measure = index != 0 && samplingInterval != 0 && index % samplingInterval == 0;
-					get(config.getKeyPrefix() + start + index, measure)
+					get(config.getKeyPrefix() + index, measure)
 							.subscribe(
 									doc -> {},
 									err -> {incrTotalOps();err.printStackTrace();latch.countDown();},
@@ -114,7 +114,7 @@ public class Workload implements Runnable {
 			} else if (config.getPhase().compareTo("load") == 0){
 				int insertCount = config.getBatchSize();
 				while (insertCount-- > 0) {
-					insertWorkload(config.getKeyPrefix() + start + index++)
+					insertWorkload(config.getKeyPrefix() + index++)
 							.subscribe(
 									doc -> {},
 									err -> {incrTotalOps();err.printStackTrace();latch.countDown();},

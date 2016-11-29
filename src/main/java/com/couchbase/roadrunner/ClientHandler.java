@@ -109,7 +109,7 @@ class ClientHandler {
 			Workload workloadWorker = new Workload(this.id + "/Workload-" + (i + 1), this.client, config, documentGenerator, docsPerThread, workerOffset);
 			workers.add(workloadWorker);
 			executor.execute(workloadWorker);
-			workerOffset = this.clientOffset + docsPerThread;
+			workerOffset += docsPerThread;
 		}
 	}
 

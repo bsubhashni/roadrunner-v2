@@ -74,8 +74,7 @@ final class WorkloadDispatcher {
   public void init() throws Exception {
     try {
       int offset = 0;
-      int docsPerHandler = (int)Math.floor(
-          config.getNumDocs()/config.getNumClients());
+      int docsPerHandler = (int)Math.floor(config.getNumDocs()/config.getNumClients());
       for (int i=0;i<config.getNumClients();i++) {
         clientHandlers.add(new ClientHandler(config, "ClientHandler-"+(i+1), docsPerHandler, offset, this.documentGenerator));
         offset = offset + docsPerHandler;
