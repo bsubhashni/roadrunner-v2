@@ -87,7 +87,7 @@ public final class RoadRunner {
 	public static final String DEFAULT_CLASS = "Simple";
 	public static final String DEFAULT_MIN_THINKTIME = "1";
 	public static final String DEFAULT_MAX_THINKTIME = "1000";
-	public static final String DEFAULT_BATCHSIZE = "1";
+	public static final String DEFAULT_BATCHSIZE = "2";
 
 	private RoadRunner() {
 	}
