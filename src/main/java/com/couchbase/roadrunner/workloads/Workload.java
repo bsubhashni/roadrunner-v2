@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.couchbase.client.core.BackpressureException;
 import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.PersistTo;
+import com.couchbase.client.java.ReplicateTo;
 import com.couchbase.roadrunner.GlobalConfig;
 import com.couchbase.roadrunner.customConverter.ByteJsonDocument;
 import com.google.common.base.Stopwatch;
@@ -127,13 +129,14 @@ public class Workload implements Runnable {
 			} catch (InterruptedException ex) {
 				ex.printStackTrace();
 			}
+			try {
+				Thread.sleep((long) Math.random() * config.getMaxThinkTime() + config.getMinThinkTime());
+			} catch (InterruptedException ex) {
+				ex.printStackTrace();
+			}
 		}
 
-		try {
-			Thread.sleep((long) Math.random() * config.getMaxThinkTime() + config.getMinThinkTime());
-		} catch (InterruptedException ex) {
-			ex.printStackTrace();
-		}
+
 		System.out.println("Completed" + this.workloadName);
 		endTimer();
 	}
@@ -157,7 +160,7 @@ public class Workload implements Runnable {
 
 	private Observable<ByteJsonDocument> _update(String key) {
 		final ByteJsonDocument document = documentGenerator.getDocument(key);
-		return getBucket().async().upsert(document).retryWhen(errors -> errors.flatMap((Func1<Throwable, Observable<?>>) throwable -> {
+		return getBucket().async().upsert(document, PersistTo.NONE, ReplicateTo.ONE).retryWhen(errors -> errors.flatMap((Func1<Throwable, Observable<?>>) throwable -> {
 							if (throwable instanceof BackpressureException) {
 									return Observable.timer(1, TimeUnit.MICROSECONDS);
 								}
